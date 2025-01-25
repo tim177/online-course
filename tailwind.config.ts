@@ -1,18 +1,18 @@
-import type { Config } from "tailwindcss";
+const { fontFamily } = require("tailwindcss/defaultTheme");
 
-export default {
+module.exports = {
   content: [
-    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/pages/**/*.{js,ts,jsx,tsx}",
+    "./src/components/**/*.{js,ts,jsx,tsx}",
+    "./src/app/**/*.{js,ts,jsx,tsx}",
+    "./node_modules/@shadcn/ui/**/*.js",
   ],
   theme: {
     extend: {
-      colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+      fontFamily: {
+        sans: ["Inter", ...fontFamily.sans],
       },
     },
   },
   plugins: [],
-} satisfies Config;
+};

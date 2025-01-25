@@ -1,101 +1,172 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ArrowLeft, ArrowRight, Share2, RotateCcw } from "lucide-react";
+import { VideoSummary } from "./components/video-summary";
+import { NotesSection } from "./components/notes-section";
+import { QuizSection } from "./components/quiz-section";
+import { Achievements } from "./components/achievements";
+import { VideoPlayer } from "./components/video-player";
+import { CareerSection } from "./components/career-section";
+import { CommunitySection } from "./components/community-section";
+import { Certificate } from "./components/certificate";
+import { CourseRating } from "./components/course-rating";
+import { COURSE_MODULES, CourseContent } from "./components/course-content";
+
+const COURSE_TITLE = "Advanced React Development with Next.js";
+
+export default function CoursePage() {
+  const [currentVideoId, setCurrentVideoId] = useState(
+    COURSE_MODULES[0].lessons[0].id
+  );
+  const [completedVideos, setCompletedVideos] = useState<string[]>([]);
+  const [progress, setProgress] = useState(0);
+  const [currentCaptions, setCurrentCaptions] = useState("");
+
+  useEffect(() => {
+    const totalVideos = COURSE_MODULES.reduce(
+      (sum, module) => sum + module.lessons.length,
+      0
+    );
+    const newProgress = Math.round(
+      (completedVideos.length / totalVideos) * 100
+    );
+    setProgress(newProgress);
+  }, [completedVideos]);
+
+  const handleVideoComplete = () => {
+    if (!completedVideos.includes(currentVideoId)) {
+      setCompletedVideos([...completedVideos, currentVideoId]);
+    }
+  };
+
+  const handleVideoSelect = (videoId: string) => {
+    setCurrentVideoId(videoId);
+  };
+
+  const handleNextVideo = () => {
+    const allLessons = COURSE_MODULES.flatMap((module) => module.lessons);
+    const currentIndex = allLessons.findIndex(
+      (lesson) => lesson.id === currentVideoId
+    );
+    if (currentIndex < allLessons.length - 1) {
+      setCurrentVideoId(allLessons[currentIndex + 1].id);
+    }
+  };
+
+  const handlePreviousVideo = () => {
+    const allLessons = COURSE_MODULES.flatMap((module) => module.lessons);
+    const currentIndex = allLessons.findIndex(
+      (lesson) => lesson.id === currentVideoId
+    );
+    if (currentIndex > 0) {
+      setCurrentVideoId(allLessons[currentIndex - 1].id);
+    }
+  };
+
+  const handleCaptionsUpdate = (captions: string) => {
+    setCurrentCaptions(captions);
+  };
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div className="min-h-screen bg-background">
+      <header className="flex items-center justify-between p-4 border-b">
+        <div className="flex items-center space-x-2">
+          <Button variant="ghost" size="icon" onClick={handlePreviousVideo}>
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <Button variant="ghost" size="icon" onClick={handleNextVideo}>
+            <ArrowRight className="h-4 w-4" />
+          </Button>
+          <Button variant="ghost" size="icon">
+            <RotateCcw className="h-4 w-4" />
+          </Button>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+        <Button variant="ghost" size="sm">
+          <Share2 className="h-4 w-4 mr-2" />
+          Share
+        </Button>
+      </header>
+
+      <div className="grid lg:grid-cols-[1fr,320px] h-[calc(100vh-65px)]">
+        <main className="p-6 overflow-auto">
+          <div className="max-w-4xl mx-auto space-y-8">
+            <div>
+              <h1 className="text-2xl font-bold mb-2">{COURSE_TITLE}</h1>
+              <p className="text-muted-foreground">
+                Master modern React development with Next.js, including Server
+                Components, App Router, and advanced patterns.
+              </p>
+              <div className="flex items-center gap-4 mt-4 text-sm text-muted-foreground">
+                <span>4h 20min</span>
+                <span>45 videos</span>
+                <span>38 lessons</span>
+                <div className="flex items-center">
+                  <span className="text-yellow-500 mr-1">★</span>
+                  <span>4.7</span>
+                  <span className="ml-1">(325 reviews)</span>
+                </div>
+              </div>
+              <Progress value={progress} className="mt-4" />
+              <div className="flex items-center justify-between mt-2 text-sm text-muted-foreground">
+                <span>Progress: {progress}%</span>
+                <Achievements />
+              </div>
+            </div>
+
+            <Tabs defaultValue="video" className="w-full">
+              <TabsList className="w-full justify-start">
+                <TabsTrigger value="video">Video</TabsTrigger>
+                <TabsTrigger value="notes">Notes</TabsTrigger>
+                <TabsTrigger value="quiz">Quiz</TabsTrigger>
+                <TabsTrigger value="career">Career & Community</TabsTrigger>
+              </TabsList>
+              <TabsContent value="video" className="space-y-4">
+                <VideoPlayer
+                  videoId={currentVideoId}
+                  onComplete={handleVideoComplete}
+                  onCaptionsUpdate={handleCaptionsUpdate}
+                />
+                <Separator />
+                <VideoSummary
+                  videoId={currentVideoId}
+                  captions={currentCaptions}
+                />
+              </TabsContent>
+              <TabsContent value="notes">
+                <NotesSection videoId={currentVideoId} />
+              </TabsContent>
+              <TabsContent value="quiz">
+                <QuizSection
+                  videoId={currentVideoId}
+                  videoContent={currentCaptions}
+                />
+              </TabsContent>
+              <TabsContent value="career" className="space-y-6">
+                <CareerSection courseTitle={COURSE_TITLE} />
+                <CommunitySection />
+              </TabsContent>
+            </Tabs>
+
+            <div className="space-y-6">
+              <Certificate progress={progress} />
+              <CourseRating />
+            </div>
+          </div>
+        </main>
+
+        <aside className="border-l overflow-auto">
+          <CourseContent
+            currentVideoId={currentVideoId}
+            completedVideos={completedVideos}
+            onVideoSelect={handleVideoSelect}
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        </aside>
+      </div>
     </div>
   );
 }
